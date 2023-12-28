@@ -72,7 +72,7 @@ class AuthController extends BaseController {
         $user = User::where( 'email', $request->email )->first();
 
         if ( $user->id != null ) {
-            $verification_code = $this->generateOtp( $user->phone );
+            $verification_code = $this->generateOtp( $user->email );
             try{
                 $otp =  $this->sendSmsNotificaition( $user->phone, $verification_code->otp );
 
@@ -97,8 +97,8 @@ class AuthController extends BaseController {
     }
 
 
-    public function generateOtp( $mobile_no ) {
-        $user = User::where( 'phone', $mobile_no )->first();
+    public function generateOtp( $email ) {
+        $user = User::where( 'email', $email )->first();
 
         # User Does not Have Any Existing OTP
         $verificationCode = VerificationCode::where( 'user_id', $user->id )->latest()->first();
@@ -184,7 +184,7 @@ class AuthController extends BaseController {
             'first_name' => 'required|max:191',
             'email' => 'required|email|unique:users|max:191',
             'username' => 'required|unique:users|max:191',
-            'phone' => 'required|unique:users|max:191',
+            'phone' => 'nullable|sometimes|unique:users|max:191',
             'password' => 'required|min:6|max:191',
             'user_type' => 'required',
             'device_type' => 'required',
@@ -215,14 +215,17 @@ class AuthController extends BaseController {
                 $user->update( [
                     'api_token' => $token
                 ] );
-                $verification_code = $this->generateOtp( $user->phone );
-                $otp =  $this->sendSmsNotificaition( $request->phone, $verification_code->otp );
+                $otp = '';
+                $verification_code = $this->generateOtp( $user->email );
+                if ($user->phone) {
+                    $otp =  $this->sendSmsNotificaition( $request->phone, $verification_code->otp );
+                }
                 // Mail::to($request->email)->send(new BasicMail([
                 //     'subject' => 'Your OTP Code',
                 //     'message' => $otp,
                 // ]));
                 $data = array('email'=>$user->email,
-                'OTP'=>$otp);
+                'OTP'=> $otp);
                 // Mail::send(['text'=>'mail'], $data, function($message) {
                 //     $message->to(Auth::user->email, 'Changa App')->subject
                 //        ('OTP for verification');
