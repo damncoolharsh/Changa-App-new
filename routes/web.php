@@ -47,6 +47,10 @@ Route::get('/policy', function () {
     return view('terms');
 });
 
+Route::get('/support', function () {
+    return view('support');
+});
+
 
 Route::get('/test', function () {
     $groups = Group::all();
