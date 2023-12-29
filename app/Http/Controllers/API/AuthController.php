@@ -544,6 +544,15 @@ class AuthController extends BaseController {
         }
     }
 
+    public function deleteUser(Request $request)
+    {
+        $user = auth('sanctum')->user();
+        $user_id = auth('sanctum')->user()->id;
+
+        $user->forceDelete();
+        return $this->sendResponse( null, 'Success' );
+    }
+
 
    //social login
     public function socialLogin(Request $request)

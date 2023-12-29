@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('resetPassword', [AuthController::class, 'resetPassword']);
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
     Route::get('accountDelete', [AuthController::class, 'accountDelete']);
+    Route::post('deleteUser', [AuthController::class, 'deleteUser']);
 
     Route::controller(LearnController::class)
     ->prefix('learn')
