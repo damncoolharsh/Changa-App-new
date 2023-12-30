@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('learn','learn')->name('learn');
         Route::post('store','store')->name('learn.store');
         Route::post('destroy','destroy')->name('learn.destroy');
+        Route::get('learnUser','learnUser')->name('learn.learnUser');
     });
 
     Route::controller(ListenController::class)
@@ -58,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('listen','listen')->name('listen');
         Route::post('store','store')->name('listen.store');
         Route::post('destroy','destroy')->name('listen.destroy');
+        Route::get('listenUser','listenUser')->name('listen.listenUser');
     });
 
     Route::controller(TherapyController::class)
@@ -67,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('therapy','therapy')->name('therapy');
         Route::post('store','store')->name('therapy.store');
         Route::post('destroy','destroy')->name('therapy.destroy');
+        Route::get('therapyUser','therapyUser')->name('therapy.therapyUser');
     });
 
     Route::controller(MediateController::class)
@@ -76,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('mediate','mediate')->name('mediate');
         Route::post('store','store')->name('mediate.store');
         Route::post('destroy','destroy')->name('mediate.destroy');
+        Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
     });
 
     Route::controller(ChatController::class)

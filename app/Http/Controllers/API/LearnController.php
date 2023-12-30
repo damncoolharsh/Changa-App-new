@@ -157,4 +157,14 @@ class LearnController extends BaseController
             return $this->sendResponse( $ex->getMessage(), 'something went wrong');
         }
     }
+
+    public function learnUser() {
+        $mediators_id = Learn::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
+        $mediate_tags = User::whereIn('id', $mediators_id)->get();
+        if($mediate_tags->count() > 0) {
+            return $this->sendResponse( $mediate_tags, 'Success' );
+        } else {
+            return $this->sendError( [], 'No Data found');
+        }
+    }
 }
