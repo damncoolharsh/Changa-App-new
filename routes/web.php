@@ -51,6 +51,9 @@ Route::get('/support', function () {
     return view('support');
 });
 
+Route::get('/.well-known/assetlinks.json', function () {
+    return response()->file(resource_path('../public/js/assetlinks.json'));
+});
 
 Route::get('/test', function () {
     $groups = Group::all();

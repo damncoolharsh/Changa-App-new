@@ -1,0 +1,12 @@
+[
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "A2:B1:63:B9:91:B4:4C:BC:BC:C2:62:A7:04:82:C2:0C:FE:4D:82:88:1B:B6:E3:32:3D:90:8B:74:B5:DA:0E:3F"
+            ]
+        }
+    }
+]
