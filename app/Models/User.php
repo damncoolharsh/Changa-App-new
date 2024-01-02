@@ -41,8 +41,8 @@ class User extends Authenticatable
         'phome_verified_at',
         'customer_id',
         'mediator_category_id',
-        'twitter_id'
-
+        'twitter_id',
+        'about_us'
     ];
 
     /**

@@ -32,7 +32,7 @@ class AuthController extends BaseController {
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255',
-            'phone' => 'required|string|max:15',
+            'phone' => 'nullable|sometimes|string|max:15',
             'otp' => 'required|string|max:4',
         ]);
     
@@ -40,7 +40,7 @@ class AuthController extends BaseController {
             return $this->sendError($validator->errors()->all());
         }
     
-        $user = User::where('email', $request->email)->where('phone', $request->phone)->first();
+        $user = User::where('email', $request->email)->first();
     
         if (!$user) {
             return response(['errors' => ['User not found']], 422);
@@ -501,7 +501,7 @@ class AuthController extends BaseController {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'email' => 'required|max:191|email|unique:users,email,'.$user_id,
-            'phone' => 'required|max:191',
+            'phone' => 'nullable|sometimes|max:191',
         ]);
         if($validator->fails()){
             return $this->sendError($validator->errors()->all());
@@ -517,15 +517,16 @@ class AuthController extends BaseController {
             $fileName = ChangaAppHelper::uploadfile($profile, $path);
             $fileType = ChangaAppHelper::checkFileExtension($fileName);
         } else {
-            $fileName = $request->profile_pic;
+            $fileName = $user->profile_pic;
         }
         $user_update = User::updateOrCreate(['id' => $user_id],
                 [
                 'first_name' => $request->name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => is_null($request->phone) ? $user->phone : $request->phone,
                 'profile_pic' => $fileName,
                 'address' => $request->address,
+                'about_us' => is_null($request->about_us) ? $user->about_us : $request->about_us,
             ]);
             if($request->end_trip_remainder && $request->new_content && $request->trip_update && $request->review_narrative_identity && $request->reflect_after_trip){
             $user_update->notification_settings = UserNotificationSetting::updateOrCreate(['user_id' => $user->id],

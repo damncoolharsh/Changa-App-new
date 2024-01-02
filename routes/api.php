@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\LearnController;
 use App\Http\Controllers\API\ListenController;
+use App\Http\Controllers\API\NarrativeController;
 use App\Http\Controllers\API\TherapyController;
 use App\Http\Controllers\API\MediateController;
 use App\Http\Controllers\API\ChatController;
@@ -80,6 +81,14 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store','store')->name('mediate.store');
         Route::post('destroy','destroy')->name('mediate.destroy');
         Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
+    });
+
+    Route::controller(NarrativeController::class)
+    ->prefix('narrative')
+    ->group(function(){
+        Route::get('/','index')->name('narrative');
+        Route::post('store','store')->name('narrative.store');
+        Route::post('delete','delete')->name('narrative.delete');
     });
 
     Route::controller(ChatController::class)

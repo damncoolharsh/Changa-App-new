@@ -38,6 +38,7 @@ return new class extends Migration
             $table->text('email_verify_token')->nullable();
             $table->rememberToken();
             $table->string('api_token', 80)->unique()->nullable()->default(null);
+            $table->string('about_us')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
