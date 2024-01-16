@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name')->nullable();
-            $table->string('username')->unique();
+            $table->string('username');
             $table->string('customer_id')->nullable()->nullable();
-            $table->string('email')->unique();
-            $table->string('phone')->unique()->nullable();
+            $table->string('email');
+            $table->string('phone')->nullable();
             $table->string('profile_pic')->nullable();
             $table->string('background_pic')->nullable();
             $table->string('website')->nullable();

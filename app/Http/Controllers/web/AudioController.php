@@ -23,7 +23,7 @@ class AudioController extends Controller
     public function index()
     {
         try{
-            $users = Audio::with('audioTag', 'audioTagMulti')->get();
+            $users = Audio::with('audioTag', 'audioTagMulti')->paginate(env('PAGINATE'));
 
             if(count($users) > 0) {
                 foreach($users as $key => $user) {
@@ -35,7 +35,7 @@ class AudioController extends Controller
                     $users[$key]['audio_tag_id'] = implode(', ', $arr);
                 }
             }
-         
+
             return view('admin.audio.list')->with('users',$users);
             }catch(\Throwable $e){
             return  $e;
@@ -115,8 +115,7 @@ class AudioController extends Controller
                 $validations = $validator->errors();
                 throw new \Exception("Please correct all the validations.");
             }
-            
-        
+
             if($request->file('file')) {
                 $profile = $request->file('file');
                 $path = "file";
@@ -153,7 +152,7 @@ class AudioController extends Controller
                     $mutli  = new AudioTagMulti();
                     $mutli->audio_tag_id = $tag;
                     $mutli->audio_id = $audio->id;
-              
+
                     $mutli->save();
                 }
             }

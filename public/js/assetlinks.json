@@ -1,0 +1,52 @@
+[
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "A2:B1:63:B9:91:B4:4C:BC:BC:C2:62:A7:04:82:C2:0C:FE:4D:82:88:1B:B6:E3:32:3D:90:8B:74:B5:DA:0E:3F"
+            ]
+        }
+    },
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "40:6E:AB:AE:FB:1C:63:0C:49:B1:5C:AD:AD:94:51:AA:F5:82:D5:92:BC:85:54:3E:A1:0F:9F:60:15:FD:48:9D"
+            ]
+        }
+    },
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "E1:48:08:2F:69:F1:19:E1:38:09:EB:2A:D1:C8:CF:8B:C6:2A:88:C1:94:69:C4:29:C8:F8:E8:DA:5B:D6:70:3F"
+            ]
+        }
+    },
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "97:65:88:92:5D:3B:EC:AF:78:CB:B8:E6:24:DB:0B:87:A9:0C:41:3F:DC:32:7B:A3:48:8C:50:27:1A:ED:AB:D7"
+            ]
+        }
+    },
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.widgethubs.changa_flutter",
+            "sha256_cert_fingerprints": [
+                "E9:05:13:25:95:84:03:30:0C:03:7D:70:98:F0:4D:B7:47:63:F7:EC:8E:14:18:98:4A:3A:E3:25:DE:4B:23:4F"
+            ]
+        }
+    }
+]

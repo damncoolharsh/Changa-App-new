@@ -41,8 +41,8 @@ class User extends Authenticatable
         'phome_verified_at',
         'customer_id',
         'mediator_category_id',
-        'twitter_id'
-
+        'twitter_id',
+        'about_us'
     ];
 
     /**
@@ -65,7 +65,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'profile_picture',
+    ];
+
+    public function getProfilePictureAttribute()
+    {
+        return $this->profile_pic ? asset('/storage/profile_pic/') .'/' . $this->profile_pic : NULL;
+    }
+
     public function userNotificationSetting() {
         return $this->hasOne('App\Models\UserNotificationSetting', 'user_id');
+    }
+
+    public function unreadNotification() {
+        return $this->hasMany('App\Models\Notifications', 'notifiable_id')->whereNull('read_at');
     }
 }

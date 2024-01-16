@@ -43,6 +43,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/policy', function () {
+    return view('terms');
+});
+
+Route::get('/support', function () {
+    return view('support');
+});
+
+Route::get('/.well-known/assetlinks.json', function () {
+    return response()->file(resource_path('../public/js/assetlinks.json'));
+});
+
 Route::get('/test', function () {
     $groups = Group::all();
     return view('chat.group', compact('groups'));
@@ -82,7 +94,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/chat/{group_id}', [App\Http\Controllers\ChatTestController::class, 'chat'])->name('chat');
     
     Route::controller(CustomerController::class)
-    ->prefix('users')
+    ->prefix('users') 
     ->group(function(){
         Route::get('/','index')->name('users');
         Route::get('create','create')->name('create.user');
