@@ -32,7 +32,7 @@ class AuthController extends BaseController {
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255',
-            'phone' => 'required|string|max:15',
+            'phone' => 'nullable|sometimes|string|max:15',
             'otp' => 'required|string|max:4',
         ]);
     
@@ -40,7 +40,7 @@ class AuthController extends BaseController {
             return $this->sendError($validator->errors()->all());
         }
     
-        $user = User::where('email', $request->email)->where('phone', $request->phone)->first();
+        $user = User::where('email', $request->email)->first();
     
         if (!$user) {
             return response(['errors' => ['User not found']], 422);
@@ -72,7 +72,7 @@ class AuthController extends BaseController {
         $user = User::where( 'email', $request->email )->first();
 
         if ( $user->id != null ) {
-            $verification_code = $this->generateOtp( $user->phone );
+            $verification_code = $this->generateOtp( $user->email );
             try{
                 $otp =  $this->sendSmsNotificaition( $user->phone, $verification_code->otp );
 
@@ -97,8 +97,8 @@ class AuthController extends BaseController {
     }
 
 
-    public function generateOtp( $mobile_no ) {
-        $user = User::where( 'phone', $mobile_no )->first();
+    public function generateOtp( $email ) {
+        $user = User::where( 'email', $email )->first();
 
         # User Does not Have Any Existing OTP
         $verificationCode = VerificationCode::where( 'user_id', $user->id )->latest()->first();
@@ -184,7 +184,7 @@ class AuthController extends BaseController {
             'first_name' => 'required|max:191',
             'email' => 'required|email|unique:users|max:191',
             'username' => 'required|unique:users|max:191',
-            'phone' => 'required|unique:users|max:191',
+            'phone' => 'nullable|sometimes|unique:users|max:191',
             'password' => 'required|min:6|max:191',
             'user_type' => 'required',
             'device_type' => 'required',
@@ -215,14 +215,17 @@ class AuthController extends BaseController {
                 $user->update( [
                     'api_token' => $token
                 ] );
-                $verification_code = $this->generateOtp( $user->phone );
-                $otp =  $this->sendSmsNotificaition( $request->phone, $verification_code->otp );
+                $otp = '';
+                $verification_code = $this->generateOtp( $user->email );
+                if ($user->phone) {
+                    $otp =  $this->sendSmsNotificaition( $request->phone, $verification_code->otp );
+                }
                 // Mail::to($request->email)->send(new BasicMail([
                 //     'subject' => 'Your OTP Code',
                 //     'message' => $otp,
                 // ]));
                 $data = array('email'=>$user->email,
-                'OTP'=>$otp);
+                'OTP'=> $otp);
                 // Mail::send(['text'=>'mail'], $data, function($message) {
                 //     $message->to(Auth::user->email, 'Changa App')->subject
                 //        ('OTP for verification');
@@ -498,7 +501,7 @@ class AuthController extends BaseController {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:191',
             'email' => 'required|max:191|email|unique:users,email,'.$user_id,
-            'phone' => 'required|max:191',
+            'phone' => 'nullable|sometimes|max:191',
         ]);
         if($validator->fails()){
             return $this->sendError($validator->errors()->all());
@@ -514,15 +517,16 @@ class AuthController extends BaseController {
             $fileName = ChangaAppHelper::uploadfile($profile, $path);
             $fileType = ChangaAppHelper::checkFileExtension($fileName);
         } else {
-            $fileName = $request->profile_pic;
+            $fileName = $user->profile_pic;
         }
         $user_update = User::updateOrCreate(['id' => $user_id],
                 [
                 'first_name' => $request->name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => is_null($request->phone) ? $user->phone : $request->phone,
                 'profile_pic' => $fileName,
                 'address' => $request->address,
+                'about_us' => is_null($request->about_us) ? $user->about_us : $request->about_us,
             ]);
             if($request->end_trip_remainder && $request->new_content && $request->trip_update && $request->review_narrative_identity && $request->reflect_after_trip){
             $user_update->notification_settings = UserNotificationSetting::updateOrCreate(['user_id' => $user->id],
@@ -539,6 +543,15 @@ class AuthController extends BaseController {
         if($user_update){
             return $this->sendResponse( $user_update, 'Success' );
         }
+    }
+
+    public function deleteUser(Request $request)
+    {
+        $user = auth('sanctum')->user();
+        $user_id = auth('sanctum')->user()->id;
+
+        $user->forceDelete();
+        return $this->sendResponse( null, 'Success' );
     }
 
 

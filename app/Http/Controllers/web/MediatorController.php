@@ -24,7 +24,7 @@ class MediatorController extends Controller
     public function index()
     {
         try{
-            $users = User::where('user_type', config('userTypes.mediator'))->get();
+            $users = User::where('user_type', config('userTypes.mediator'))->paginate(env('PAGINATE'));
             return view('admin.mediator.list')->with('users',$users);
             }catch(\Throwable $e){
             return  view('admin.mediator.list');
@@ -132,9 +132,9 @@ class MediatorController extends Controller
             $mailData['verify_url'] = route('verifyAccount', $user->id);
 
             $valid = true;
-            $message = "Mediator created successfully";
+            $message = "Facilitator created successfully";
             if($request->id) {
-                $message = "Mediator updated successfully";
+                $message = "Facilitator updated successfully";
             } else {
                 Mail::to($request->email)->send(new UserRegisterMail($mailData));
             }

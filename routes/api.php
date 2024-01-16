@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\LearnController;
 use App\Http\Controllers\API\ListenController;
+use App\Http\Controllers\API\NarrativeController;
 use App\Http\Controllers\API\TherapyController;
 use App\Http\Controllers\API\MediateController;
 use App\Http\Controllers\API\ChatController;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('resetPassword', [AuthController::class, 'resetPassword']);
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
     Route::get('accountDelete', [AuthController::class, 'accountDelete']);
+    Route::post('deleteUser', [AuthController::class, 'deleteUser']);
 
     Route::controller(LearnController::class)
     ->prefix('learn')
@@ -48,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('learn','learn')->name('learn');
         Route::post('store','store')->name('learn.store');
         Route::post('destroy','destroy')->name('learn.destroy');
+        Route::get('learnUser','learnUser')->name('learn.learnUser');
     });
 
     Route::controller(ListenController::class)
@@ -57,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('listen','listen')->name('listen');
         Route::post('store','store')->name('listen.store');
         Route::post('destroy','destroy')->name('listen.destroy');
+        Route::get('listenUser','listenUser')->name('listen.listenUser');
     });
 
     Route::controller(TherapyController::class)
@@ -66,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('therapy','therapy')->name('therapy');
         Route::post('store','store')->name('therapy.store');
         Route::post('destroy','destroy')->name('therapy.destroy');
+        Route::get('therapyUser','therapyUser')->name('therapy.therapyUser');
     });
 
     Route::controller(MediateController::class)
@@ -75,6 +80,15 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('mediate','mediate')->name('mediate');
         Route::post('store','store')->name('mediate.store');
         Route::post('destroy','destroy')->name('mediate.destroy');
+        Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
+    });
+    
+    Route::controller(NarrativeController::class)
+    ->prefix('narrative')
+    ->group(function(){
+        Route::get('/','index')->name('narrative');
+        Route::post('store','store')->name('narrative.store');
+        Route::post('delete','delete')->name('narrative.delete');
     });
 
     Route::controller(ChatController::class)

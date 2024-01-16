@@ -27,6 +27,7 @@
                     <p class="card-text">{{$user->username}}</p>
                     <p class="card-text">{{$user->email}}</p>
                     <p class="card-text">{{$user->phone}}</p>
+                    <p class="card-text">{{$user->about_us}}</p>
                     <div class="icon-block">
                       {{-- <a href="javascript:void();"><i class="fa fa-facebook bg-facebook text-white"></i></a>
                       <a href="javascript:void();"> <i class="fa fa-twitter bg-twitter text-white"></i></a>

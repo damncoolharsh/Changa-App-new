@@ -1,11 +1,10 @@
 <?php
 namespace App\Helpers;
 
-use App\Models\User;
 use App\Models\UserDeviceToken;
 use Carbon\Carbon;
 
-class ChangaAppHelper 
+class ChangaAppHelper
 {
     public static function sendAjaxResponse($valid, $message, $redirect = "", $data = [], $validations = [])
     {
@@ -72,7 +71,7 @@ class ChangaAppHelper
         if ($user && !is_null($user->device_token) && !is_null($user->device_type)) {
 
             $device_token = $user->device_token;
-
+            \Log::info($device_token);
             if ($user->device_type == config('deviceType.android'))
             {
                  $fcmMsg = array(
@@ -82,11 +81,11 @@ class ChangaAppHelper
                      // 'smallIcon' => 'small_icon',
                      // 'sound' => 'default',
                      // 'badge' => 1,
-                     // 'notification_type' => $data['notification_type'],
+                     // 'notifiable_type' => $data['notifiable_type'],
                      // 'id' => $data['id'],
                  );
 
-                 $extraData = ['notification_type' => $data['notification_type'],
+                 $extraData = ['notifiable_type' => $data['notifiable_type'],
                      'id' => $data['id']];
 
                  $fcmFields = ['to' => $device_token, 'notification' => $fcmMsg, 'data' => $extraData];
@@ -121,11 +120,11 @@ class ChangaAppHelper
                      // 'smallIcon' => 'small_icon',
                      // 'sound' => 'default',
                      // 'badge' => 1,
-                     // 'notification_type' => $data['notification_type'],
+                     // 'notifiable_type' => $data['notifiable_type'],
                      // 'remainder_id' => $data['remainder_id'],
                  );
 
-                 $extraData = ['notification_type' => $data['notification_type'],
+                 $extraData = ['notifiable_type' => $data['notifiable_type'],
                      'remainder_id' => $data['remainder_id']];
 
                  $fcmFields = ['to' => $device_token, 'notification' => $fcmMsg, 'data' => $extraData];

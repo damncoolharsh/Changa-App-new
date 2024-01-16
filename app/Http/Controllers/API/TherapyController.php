@@ -4,10 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ChangaAppHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Notifications;
 use App\Models\Therapy;
 use App\Models\TherapyTag;
 use App\Models\TherapyTagMulti;
 use App\Models\User;
+use App\Models\UserNotificationSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,20 +20,28 @@ class TherapyController extends BaseController
         if($mediate_tags->count() > 0) {
             return $this->sendResponse( $mediate_tags, 'Success' );
         } else {
-            return $this->sendResponse( [], 'No Data found');
+            return $this->sendError( [], 'No Data found');
         }
     }
 
     public function therapy(Request $request) {
-        $users = Therapy::with('therapyTagMulti', 'user', 'favourite')->get();
+        $users = Therapy::with('therapyTagMulti', 'user', 'favourite')->where('active', config('commonStatus.ACTIVE'))->get();
 
         if($request->id) {
-            $users = Therapy::where('id', $request->id)->with('therapyTagMulti', 'user', 'favourite')->get();
+            $users = Therapy::where('id', $request->id)->with('therapyTagMulti', 'user', 'favourite')->where('active', config('commonStatus.ACTIVE'))->get();
+            $mediators_id = Therapy::get()->pluck('user_id')->toArray();
+            $mediators = User::whereIn('id', $mediators_id)->get();
+        }
+
+        if($request->user_id) {
+            $users = Therapy::where('user_id', $request->user_id)->where('active', config('commonStatus.ACTIVE'))->with('therapyTagMulti', 'user', 'favourite')->get();
+            $mediators_id = Therapy::get()->pluck('user_id')->toArray();
+            $mediators = User::whereIn('id', $mediators_id)->get();
         }
 
         if($request->tag_id) {
             $multi = TherapyTagMulti::where('therapy_id', $request->tag_id)->get()->pluck('therapy_id')->toArray();
-            $users = Therapy::with('therapyTagMulti','user', 'favourite')->whereIn('id', $multi)->get();
+            $users = Therapy::with('therapyTagMulti','user', 'favourite')->where('active', config('commonStatus.ACTIVE'))->whereIn('id', $multi)->get();
         }
 
         if($users->count() > 0) {
@@ -41,19 +51,21 @@ class TherapyController extends BaseController
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($mediate->created_at);
                 $users[$key]['url'] = url('/api/therapy/therapy?id=' . $mediate->id);
                 $users[$key]['file'] = asset('/storage/file/'. $mediate->file);
-                $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
-
-                $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
+                if(isset($mediate->user)) {
+                    $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
+                    $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
+                }
 
                 $arr = [];
                 foreach($mediate->therapyTagMulti as $tag) {
                     $arr[] = TherapyTag::where('id', $tag->therapy_tag_id)->get()->toArray();
                 }
                 $users[$key]['therapy_tag'] = $arr;
+                $users[$key]['mediators'] = isset($mediators) ? $mediators : NULL;
             }
             return $this->sendResponse( $users, 'Success' );
         } else {
-            return $this->sendResponse( [], 'No Data found');
+            return $this->sendError( [], 'No Data found');
         }
     }
 
@@ -95,6 +107,7 @@ class TherapyController extends BaseController
                     'file' => $fileName,
                     'file_type' => $fileType,
                     'background_image' => $background_image,
+                    'active' => config('commonStatus.INACTIVE'),
                 ]
             );
 
@@ -110,11 +123,26 @@ class TherapyController extends BaseController
 
             $pushNotificationData['message'] = $Learn->title;
             $pushNotificationData['id'] = $Learn->id;
-            $pushNotificationData['notification_type'] = 'therapy';
+            $pushNotificationData['notifiable_type'] = 'therapy_create';
+            if($request->id) {
+                $pushNotificationData['notifiable_type'] = 'therapy_update';
+            }
             $users = User::where('user_type', config('userTypes.user'))->get()->pluck('id');
             if(isset($users)) {
                 foreach($users as $user) {
-                    ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    $data['notifiable_id'] = $user;
+                    $data['notifiable_type'] = $pushNotificationData['notifiable_type'];
+                    $data['type'] = $pushNotificationData['notifiable_type'];
+                    $data['data'] = $pushNotificationData['message'];
+                    Notifications::saveNotification($data);
+
+                    $setting = UserNotificationSetting::where('user_id', $user)->first();
+        
+                    if(isset($setting) && $setting->new_content == '1') {
+                        ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    } else if(isset($setting) && $setting->trip_update == '1') {
+                        ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    }
                 }
             }
 
@@ -125,7 +153,7 @@ class TherapyController extends BaseController
             return $this->sendResponse( $Learn, 'Success' );
 
         } catch (\Exception $ex) {
-            return $this->sendResponse( $ex->getMessage(), 'something went wrong');
+            return $this->sendError( $ex->getMessage(), 'something went wrong');
         }
     }
 
@@ -134,7 +162,8 @@ class TherapyController extends BaseController
         $file = 'required|mimetypes:image/jpeg,image/png,image/gif,video/webm,video/mp4,audio/mpeg,mpga,mp3,wav';
         return [
             'tag' => 'required',
-            'title' => 'required|unique:therapies,title,'. $request->id,
+            // 'title' => 'required|unique:therapies,title,'. $request->id,
+            'title' => 'required',
             'description' => 'required',
             'file' => $file,
             // 'background_image' => 'required|mimetypes:image/jpeg,image/png,image/jpg',
@@ -153,7 +182,52 @@ class TherapyController extends BaseController
             }
         }
         catch (\Exception $ex) {
-            return $this->sendResponse( $ex->getMessage(), 'something went wrong');
+            return $this->sendError( $ex->getMessage(), 'something went wrong');
+        }
+    }
+
+    public function favourite(Request $request) {
+        $users = Therapy::with('therapyTagMulti', 'user', 'favourite')->whereHas('favourite')->get();
+
+        if($request->id) {
+            $users = Therapy::where('id', $request->id)->with('therapyTagMulti', 'user', 'favourite')->whereHas('favourite')->get();
+        }
+
+        if($request->tag_id) {
+            $multi = TherapyTagMulti::where('therapy_id', $request->tag_id)->get()->pluck('therapy_id')->toArray();
+            $users = Therapy::with('therapyTagMulti','user', 'favourite')->whereHas('favourite')->whereIn('id', $multi)->get();
+        }
+
+        if($users->count() > 0) {
+            foreach($users as $key => $mediate) {
+                $description = strip_tags(html_entity_decode($mediate->description));
+                $users[$key]['description'] = strip_tags(nl2br($description));
+                $users[$key]['created_date'] = ChangaAppHelper::dateFormat($mediate->created_at);
+                $users[$key]['url'] = url('/api/therapy/therapy?id=' . $mediate->id);
+                $users[$key]['file'] = asset('/storage/file/'. $mediate->file);
+                $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
+
+                $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
+
+                $arr = [];
+                foreach($mediate->therapyTagMulti as $tag) {
+                    $arr[] = TherapyTag::where('id', $tag->therapy_tag_id)->get()->toArray();
+                }
+                $users[$key]['therapy_tag'] = $arr;
+            }
+            return $this->sendResponse( $users, 'Success' );
+        } else {
+            return $this->sendError( [], 'No Data found');
+        }
+    }
+
+    public function therapyUser() {
+        $mediators_id = Therapy::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
+        $mediate_tags = User::whereIn('id', $mediators_id)->get();
+        if($mediate_tags->count() > 0) {
+            return $this->sendResponse( $mediate_tags, 'Success' );
+        } else {
+            return $this->sendError( [], 'No Data found');
         }
     }
 }
