@@ -51,6 +51,7 @@ class UsersController extends Controller
     public function verifyAccount($id) {
         $user = User::find($id);
         $user->active = '1';
+        $user->email_verified = '1';
         $user->save();
         return response()->json(['message' => 'Your account is verified, now you can login in your app']);
     }
