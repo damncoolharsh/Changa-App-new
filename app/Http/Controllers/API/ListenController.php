@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Listen;
 use App\Models\ListenTag;
 use App\Models\ListenTagMulti;
+use App\Models\Notifications;
 use App\Models\User;
+use App\Models\UserNotificationSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,19 +20,28 @@ class ListenController extends BaseController
         if($mediate_tags->count() > 0) {
             return $this->sendResponse( $mediate_tags, 'Success' );
         } else {
-            return $this->sendResponse( [], 'No Data found');
+            return $this->sendError( [], 'No Data found');
         }
     }
 
     public function listen(Request $request) {
-        $users = Listen::with('user', 'listenTagMulti', 'favourite')->get();
+        $users = Listen::with('user', 'listenTagMulti', 'favourite')->where('active', config('commonStatus.ACTIVE'))->get();
+
+        if($request->user_id) {
+            $users = Listen::where('user_id', $request->user_id)->where('active', config('commonStatus.ACTIVE'))->with('listenTagMulti', 'user', 'favourite')->get();
+            $mediators_id = Listen::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
+            $mediators = User::whereIn('id', $mediators_id)->get();
+        }
+
         if($request->id) {
-            $users = Listen::where('id', $request->id)->with('listenTagMulti', 'user', 'favourite')->get();
+            $users = Listen::where('id', $request->id)->where('active', config('commonStatus.ACTIVE'))->with('listenTagMulti', 'user', 'favourite')->get();
+            $mediators_id = Listen::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
+            $mediators = User::whereIn('id', $mediators_id)->get();
         }
 
         if($request->tag_id) {
             $multi = ListenTagMulti::where('listen_tag_id', $request->tag_id)->get()->pluck('listen_id')->toArray();
-            $users = Listen::with('listenTagMulti','user', 'favourite')->whereIn('id', $multi)->get();
+            $users = Listen::where('active', config('commonStatus.ACTIVE'))->with('listenTagMulti','user', 'favourite')->whereIn('id', $multi)->get();
         }
 
         if($users->count() > 0) {
@@ -44,17 +55,17 @@ class ListenController extends BaseController
                     $users[$key]['user']['profile_pic'] = !empty($listen->user->profile_pic) ? asset('/storage/profile_pic/'. $listen->user->profile_pic) : null;
                     $users[$key]['user']['background_image'] = !empty($listen->user->background_image) ? asset('/storage/file/'. $listen->user->background_image) : null;;
                 }
-
                 $arr = [];
                 foreach($listen->listenTagMulti as $tag) {
                     $arr[] = ListenTag::where('id', $tag->listen_tag_id)->get()->toArray();
                 }
                 $users[$key]['listen_tag'] = $arr;
+                $users[$key]['mediators'] = isset($mediators) ? $mediators : NULL;
             }
             $success[ 'data' ] = $users;
             return $this->sendResponse( $users, 'Success' );
         } else {
-            return $this->sendResponse( [], 'No Data found');
+            return $this->sendError( [], 'No Data found');
         }
     }
 
@@ -96,6 +107,7 @@ class ListenController extends BaseController
                     'file' => $fileName,
                     'file_type' => $fileType,
                     'background_image' => $background_image,
+                    'active' => config('commonStatus.INACTIVE'),
                 ]
             );
 
@@ -111,11 +123,26 @@ class ListenController extends BaseController
 
             $pushNotificationData['message'] = $Learn->title;
             $pushNotificationData['id'] = $Learn->id;
-            $pushNotificationData['notification_type'] = 'therapy';
+            $pushNotificationData['notifiable_type'] = 'listen_create';
+            if($request->id) {
+                $pushNotificationData['notifiable_type'] = 'listen_update';
+            }
             $users = User::where('user_type', config('userTypes.user'))->get()->pluck('id');
             if(isset($users)) {
                 foreach($users as $user) {
-                    ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    $data['notifiable_id'] = $user;
+                    $data['notifiable_type'] = $pushNotificationData['notifiable_type'];
+                    $data['type'] = $pushNotificationData['notifiable_type'];
+                    $data['data'] = $pushNotificationData['message'];
+                    Notifications::saveNotification($data);
+
+                    $setting = UserNotificationSetting::where('user_id', $user)->first();
+        
+                    if(isset($setting) && $setting->new_content == '1') {
+                        ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    } else if(isset($setting) && $setting->trip_update == '1') {
+                        ChangaAppHelper::sendNotication($user, $pushNotificationData);
+                    }
                 }
             }
 
@@ -125,7 +152,7 @@ class ListenController extends BaseController
             return $this->sendResponse( $Learn, 'Success' );
 
         } catch (\Exception $ex) {
-            return $this->sendResponse( $ex->getMessage(), 'something went wrong');
+            return $this->sendError( $ex->getMessage(), 'something went wrong');
         }
     }
 
@@ -134,7 +161,8 @@ class ListenController extends BaseController
         $file = 'required|mimetypes:image/jpeg,image/png,image/gif,video/webm,video/mp4,audio/mpeg,mpga,mp3,wav';
         return [
             'tag' => 'required',
-            'title' => 'required|unique:listens,title,'. $request->id,
+            // 'title' => 'required|unique:listens,title,'. $request->id,
+            'title' => 'required',
             'description' => 'required',
             'file' => $file,
             // 'background_image' => 'required|mimetypes:image/jpeg,image/png,image/jpg',
@@ -153,7 +181,41 @@ class ListenController extends BaseController
             }
         }
         catch (\Exception $ex) {
-            return $this->sendResponse( $ex->getMessage(), 'something went wrong');
+            return $this->sendError( $ex->getMessage(), 'something went wrong');
+        }
+    }
+
+    public function favourite(Request $request) {
+        $users = Listen::with('user', 'listenTagMulti', 'favourite')->whereHas('favourite')->get();
+        if($request->id) {
+            $users = Listen::where('id', $request->id)->with('listenTagMulti', 'user', 'favourite')->whereHas('favourite')->get();
+        }
+
+        if($request->tag_id) {
+            $multi = ListenTagMulti::where('listen_tag_id', $request->tag_id)->get()->pluck('listen_id')->toArray();
+            $users = Listen::with('listenTagMulti','user', 'favourite')->whereHas('favourite')->whereIn('id', $multi)->get();
+        }
+
+        if($users->count() > 0) {
+            foreach($users as $key => $listen) {
+                $description = strip_tags(html_entity_decode($listen->description));
+                $users[$key]['description'] = strip_tags(nl2br($description));
+                $users[$key]['file'] = asset('/storage/file/'. $listen->file);
+                $users[$key]['url'] = url('/api/listen/listen?id=' . $listen->id);
+                $users[$key]['created_date'] = ChangaAppHelper::dateFormat($listen->created_at);
+                $users[$key]['user']['profile_pic'] = !empty($listen->user->profile_pic) ? asset('/storage/profile_pic/'. $listen->user->profile_pic) : null;
+                $users[$key]['user']['background_image'] = !empty($listen->user->background_image) ? asset('/storage/file/'. $listen->user->background_image) : null;;
+
+                $arr = [];
+                foreach($listen->listenTagMulti as $tag) {
+                    $arr[] = ListenTag::where('id', $tag->listen_tag_id)->get()->toArray();
+                }
+                $users[$key]['listen_tag'] = $arr;
+            }
+            $success[ 'data' ] = $users;
+            return $this->sendResponse( $users, 'Success' );
+        } else {
+            return $this->sendError( [], 'No Data found');
         }
     }
 

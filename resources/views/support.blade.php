@@ -24,7 +24,7 @@
       <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
 
       <p class="pt-2">
-      Expand your mind with Changa - your personal psychedelic guide.
+      Expand your mind with Changa - your personal psychedelic guide. 
 Journey deeper into yourself through immersive music, visuals, and meditations. Track your insights. Integrate at your own pace with journaling prompts and education from experts.
 Connect with a supportive community of fellow explorers in our safe chat space.
 Curated content keeps your experience fresh, with new artists and perspectives in the psychedelic space.

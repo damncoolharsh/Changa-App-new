@@ -19,7 +19,7 @@
                 <section id="customer-list">
                     <div class="row mb-2">
                       <div class="col-md-12">
-                        <h5>Mediator Categories <span class="float-right"><a href="{{route('create.mediator_category')}}" class="btn btn-primary">Create</a></span></h5>
+                        <h5>Facilitator Categories <span class="float-right"><a href="{{route('create.mediator_category')}}" class="btn btn-primary">Create</a></span></h5>
                       </div>
                     </div>
                   
@@ -50,6 +50,7 @@
                                       @endforeach
                                     </tbody>
                                   </table>
+                                  {{ $mediator_categories->links('pagination::bootstrap-4') }}
                                 </div>
                               </div>
                             </div>

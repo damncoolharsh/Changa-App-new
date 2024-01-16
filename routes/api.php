@@ -82,7 +82,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('destroy','destroy')->name('mediate.destroy');
         Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
     });
-
+    
     Route::controller(NarrativeController::class)
     ->prefix('narrative')
     ->group(function(){

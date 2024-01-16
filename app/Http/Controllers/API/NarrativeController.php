@@ -10,7 +10,7 @@ use Validator;
 class NarrativeController extends BaseController
 {
     public function index() {
-        $mediate_tags = Narrative::where('id', auth()->user()->id)->get();
+        $mediate_tags = Narrative::where('user_id', auth()->user()->id)->get();
         if($mediate_tags->count() > 0) {
             return $this->sendResponse( $mediate_tags, 'Success' );
         } else {

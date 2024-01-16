@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -10,7 +11,7 @@
 
 <body>
     <input type="hidden1" name="senderId" id="senderId" value="{{ Auth::user()->id }}">
-    <input type="hidden1" name="recieverId" id="recieverId" value="{{ isset($group_id) ? $group_id : '' }}">
+    <input type="hidden1" name="recieverId" id="recieverId" value="{{ isset($group_id) ? $group_id : 1 }}">
     <input type="hidden1" name="" id="username" value="{{ Auth::user()->first_name }}">
 
     <div id="chat-box"></div>
@@ -29,15 +30,21 @@
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="https://cdn.socket.io/4.1.1/socket.io.min.js"
-        integrity="sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a" crossorigin="anonymous">
-    </script>
+    <script src="https://cdn.socket.io/4.1.1/socket.io.min.js"></script>
 
     <script type="text/javascript">
-        let ip_address = 'http://localhost';
-        let socket_port = 3000;
+
         var socketId = '';
-        let socket = io(ip_address + ':' + socket_port);
+        var link = '{{env('NODE_LINK')}}';
+        let socket = io(link, {
+    //   transports: ['websocket'], // Force WebSocket transport
+    });
+
+    // Event handler for connection failure
+    socket.on('connect_error', (error) => {
+      console.error('WebSocket connection failed:', error);
+      // Handle the connection failure appropriately
+    });
         socket.on('connect', () => {
             socketId = socket.id;
             console.log(socketId + 'socketId');

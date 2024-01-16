@@ -60,7 +60,7 @@
                                 <span class="error username-error">{{ $errors->first('username') }}</span>
                             </div>
                             <div class="col-md-6 col-sm-12 form-group">
-                                <label for="input-2">Mediator Category</label>
+                                <label for="input-2">Facilitator Category</label>
                                 <select class="form-control" name="category">
                                     <option disabled selected>Select Category</option>
                                     @if ($mediator_categories->count() > 0)

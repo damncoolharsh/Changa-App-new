@@ -57,7 +57,6 @@ class LearnController extends BaseController
                     $users[$key]['user']['profile_pic'] = !empty($learn->user->profile_pic) ? asset('/storage/profile_pic/'. $learn->user->profile_pic) : null;
                     $users[$key]['user']['background_image'] = !empty($learn->user->background_image) ? asset('/storage/file/'. $learn->user->background_image) : null;
                 }
-                
                 $arr = [];
                 foreach($learn->learnTagMulti as $tag) {
                     $arr[] = LearnTag::where('id', $tag->learn_tag_id)->get()->toArray();
