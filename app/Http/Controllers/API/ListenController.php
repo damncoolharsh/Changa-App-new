@@ -51,7 +51,7 @@ class ListenController extends BaseController
                 $users[$key]['file'] = asset('/storage/file/'. $listen->file);
                 $users[$key]['url'] = url('/api/listen/listen?id=' . $listen->id);
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($listen->created_at);
-                if(isset($listen->user)) {
+                if (isset($listen->user)) {
                     $users[$key]['user']['profile_pic'] = !empty($listen->user->profile_pic) ? asset('/storage/profile_pic/'. $listen->user->profile_pic) : null;
                     $users[$key]['user']['background_image'] = !empty($listen->user->background_image) ? asset('/storage/file/'. $listen->user->background_image) : null;;
                 }
@@ -203,9 +203,10 @@ class ListenController extends BaseController
                 $users[$key]['file'] = asset('/storage/file/'. $listen->file);
                 $users[$key]['url'] = url('/api/listen/listen?id=' . $listen->id);
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($listen->created_at);
-                $users[$key]['user']['profile_pic'] = !empty($listen->user->profile_pic) ? asset('/storage/profile_pic/'. $listen->user->profile_pic) : null;
-                $users[$key]['user']['background_image'] = !empty($listen->user->background_image) ? asset('/storage/file/'. $listen->user->background_image) : null;;
-
+                if (isset($listen->user)) {
+                    $users[$key]['user']['profile_pic'] = !empty($listen->user->profile_pic) ? asset('/storage/profile_pic/'. $listen->user->profile_pic) : null;
+                    $users[$key]['user']['background_image'] = !empty($listen->user->background_image) ? asset('/storage/file/'. $listen->user->background_image) : null;;
+                }
                 $arr = [];
                 foreach($listen->listenTagMulti as $tag) {
                     $arr[] = ListenTag::where('id', $tag->listen_tag_id)->get()->toArray();

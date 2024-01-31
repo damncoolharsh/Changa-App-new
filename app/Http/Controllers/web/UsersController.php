@@ -25,19 +25,24 @@ class UsersController extends Controller
         try {
             $credentials = $request->except(['_token']);
             if (Auth::attempt($credentials)) {
+                error_log("Success1");
                 if(auth()->user()->user_type == 1){
+                    error_log("Success2");
                     return redirect()->route('dashboard');
                 }
                 else{
+                    error_log("Success2");
                     Auth::logout();
                     return back()->withInput()->with('error','Credential not matched');
                 }
                 // return response()->json(['message' => 'You have successfull login', 'redirect' => route('dashboard'), 'status' => true]);
             } else {
+                error_log("Success3");
                 return back()->with('error','Credential not matched');
                 // return response()->json(['message' => 'No user found', 'status' => false]);
             }
         } catch (\Throwable $e) {
+            error_log("Success4");
             return $e->getMessage();
             // return response()->json(['message' => json_encode($e->getMessage()), 'status' => config('commonStatus.INACTIVE')]);
         }

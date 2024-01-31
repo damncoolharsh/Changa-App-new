@@ -51,11 +51,10 @@ class TherapyController extends BaseController
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($mediate->created_at);
                 $users[$key]['url'] = url('/api/therapy/therapy?id=' . $mediate->id);
                 $users[$key]['file'] = asset('/storage/file/'. $mediate->file);
-                if(isset($mediate->user)) {
+                if (isset($mediate->user)) {
                     $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
                     $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
                 }
-
                 $arr = [];
                 foreach($mediate->therapyTagMulti as $tag) {
                     $arr[] = TherapyTag::where('id', $tag->therapy_tag_id)->get()->toArray();
@@ -205,10 +204,10 @@ class TherapyController extends BaseController
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($mediate->created_at);
                 $users[$key]['url'] = url('/api/therapy/therapy?id=' . $mediate->id);
                 $users[$key]['file'] = asset('/storage/file/'. $mediate->file);
-                $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
-
-                $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
-
+                if (isset($mediate->user)) {
+                    $users[$key]['user']['profile_pic'] = !empty($mediate->user->profile_pic) ? asset('/storage/profile_pic/'. $mediate->user->profile_pic) : null;
+                    $users[$key]['user']['background_image'] = !empty($mediate->user->background_image) ? asset('/storage/file/'. $mediate->user->background_image) : null;
+                }
                 $arr = [];
                 foreach($mediate->therapyTagMulti as $tag) {
                     $arr[] = TherapyTag::where('id', $tag->therapy_tag_id)->get()->toArray();
@@ -216,16 +215,6 @@ class TherapyController extends BaseController
                 $users[$key]['therapy_tag'] = $arr;
             }
             return $this->sendResponse( $users, 'Success' );
-        } else {
-            return $this->sendError( [], 'No Data found');
-        }
-    }
-
-    public function therapyUser() {
-        $mediators_id = Therapy::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
-        $mediate_tags = User::whereIn('id', $mediators_id)->get();
-        if($mediate_tags->count() > 0) {
-            return $this->sendResponse( $mediate_tags, 'Success' );
         } else {
             return $this->sendError( [], 'No Data found');
         }

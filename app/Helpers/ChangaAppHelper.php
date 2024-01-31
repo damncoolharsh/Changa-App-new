@@ -4,7 +4,7 @@ namespace App\Helpers;
 use App\Models\UserDeviceToken;
 use Carbon\Carbon;
 
-class ChangaAppHelper
+class ChangaAppHelper 
 {
     public static function sendAjaxResponse($valid, $message, $redirect = "", $data = [], $validations = [])
     {
@@ -71,7 +71,7 @@ class ChangaAppHelper
         if ($user && !is_null($user->device_token) && !is_null($user->device_type)) {
 
             $device_token = $user->device_token;
-            \Log::info($device_token);
+
             if ($user->device_type == config('deviceType.android'))
             {
                  $fcmMsg = array(
@@ -104,8 +104,7 @@ class ChangaAppHelper
                  curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmFields));
 
                  $result = curl_exec($ch);
-                 \Log::info('Remainder Notification ANDROID.');
-                // print_r($result);die('and');
+
                  curl_close($ch);
             }
             else
@@ -143,8 +142,6 @@ class ChangaAppHelper
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmFields));
 
                     $result = curl_exec($ch);
-
-                    \Log::info('Remainder Notification IOS.');
                     // print_r($result);die('ios');
                     curl_close($ch);
                 }

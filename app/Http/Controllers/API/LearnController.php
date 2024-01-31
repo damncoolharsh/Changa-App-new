@@ -13,7 +13,7 @@ use App\Models\UserNotificationSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class LearnController extends BaseController
+class LearnController extends BaseController 
 {
     public function learnTag() {
         $mediate_tags = LearnTag::get();
@@ -26,7 +26,7 @@ class LearnController extends BaseController
 
     public function learn(Request $request) {
         $users = Learn::where('active', config('commonStatus.ACTIVE'))->with('learnTagMulti', 'user', 'favourite')->get();
-
+        
         if($request->user_id) {
             $users = Learn::where('user_id', $request->user_id)->where('active', config('commonStatus.ACTIVE'))->with('learnTagMulti', 'user', 'favourite')->get();
             $mediators_id = Learn::where('active', config('commonStatus.ACTIVE'))->get()->pluck('user_id')->toArray();
@@ -46,14 +46,14 @@ class LearnController extends BaseController
 
         if($users->count() > 0) {
             foreach($users as $key => $learn) {
-
+                
                 // $users[$key]['description'] = stripslashes(html_entity_decode(strip_tags($learn->description)));
                 $description = strip_tags(html_entity_decode($learn->description));
                 $users[$key]['description'] = strip_tags(nl2br($description));
                 $users[$key]['file'] = asset('/storage/file/'. $learn->file);
                 $users[$key]['url'] = url('/api/learn/learn?id=' . $learn->id);
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($learn->created_at);
-                if(isset($learn->user)) {
+                if (isset($learn->user)) {
                     $users[$key]['user']['profile_pic'] = !empty($learn->user->profile_pic) ? asset('/storage/profile_pic/'. $learn->user->profile_pic) : null;
                     $users[$key]['user']['background_image'] = !empty($learn->user->background_image) ? asset('/storage/file/'. $learn->user->background_image) : null;
                 }
@@ -64,7 +64,7 @@ class LearnController extends BaseController
                 $users[$key]['learn_tag'] = $arr;
                 $users[$key]['mediators'] = isset($mediators) ? $mediators : NULL;
             }
-
+            
             return $this->sendResponse( $users, 'Success' );
         } else {
             return $this->sendError( [], 'No Data found');
@@ -119,7 +119,7 @@ class LearnController extends BaseController
                     $mutli  = new LearnTagMulti();
                     $mutli->learn_tag_id = $tag;
                     $mutli->learn_id = $Learn->id;
-
+              
                     $mutli->save();
                 }
             }
@@ -140,6 +140,7 @@ class LearnController extends BaseController
                     Notifications::saveNotification($data);
 
                     $setting = UserNotificationSetting::where('user_id', $user)->first();
+        
                     if(isset($setting) && $setting->new_content == '1') {
                         ChangaAppHelper::sendNotication($user, $pushNotificationData);
                     } else if(isset($setting) && $setting->trip_update == '1') {
@@ -189,7 +190,7 @@ class LearnController extends BaseController
 
     public function favourite(Request $request) {
         $users = Learn::with('learnTagMulti', 'user', 'favourite')->whereHas('favourite')->get();
-
+        
         if($request->id) {
             $users = Learn::where('id', $request->id)->with('learnTagMulti', 'user', 'favourite')->whereHas('favourite')->get();
         }
@@ -201,15 +202,17 @@ class LearnController extends BaseController
 
         if($users->count() > 0) {
             foreach($users as $key => $learn) {
-
+                
                 // $users[$key]['description'] = stripslashes(html_entity_decode(strip_tags($learn->description)));
                 $description = strip_tags(html_entity_decode($learn->description));
                 $users[$key]['description'] = strip_tags(nl2br($description));
                 $users[$key]['file'] = asset('/storage/file/'. $learn->file);
                 $users[$key]['url'] = url('/api/learn/learn?id=' . $learn->id);
                 $users[$key]['created_date'] = ChangaAppHelper::dateFormat($learn->created_at);
-                $users[$key]['user']['profile_pic'] = !empty($learn->user->profile_pic) ? asset('/storage/profile_pic/'. $learn->user->profile_pic) : null;
-                $users[$key]['user']['background_image'] = !empty($learn->user->background_image) ? asset('/storage/file/'. $learn->user->background_image) : null;
+                if (isset($learn->user)) {
+                    $users[$key]['user']['profile_pic'] = !empty($learn->user->profile_pic) ? asset('/storage/profile_pic/'. $learn->user->profile_pic) : null;
+                    $users[$key]['user']['background_image'] = !empty($learn->user->background_image) ? asset('/storage/file/'. $learn->user->background_image) : null;
+                }
 
                 $arr = [];
                 foreach($learn->learnTagMulti as $tag) {
