@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('mediates', function (Blueprint $table) {
+        Schema::table('guides', function (Blueprint $table) {
             $table->integer('views')->nullable();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mediates_views');
+        Schema::dropIfExists('guide_views');
     }
 };

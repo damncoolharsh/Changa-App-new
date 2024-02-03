@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store','store')->name('learn.store');
         Route::post('destroy','destroy')->name('learn.destroy');
         Route::get('learnUser','learnUser')->name('learn.learnUser');
+        Route::post('addViewCount', 'addViewCount')->name('learn.addViewCount');
     });
 
     Route::controller(ListenController::class)
@@ -61,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store','store')->name('listen.store');
         Route::post('destroy','destroy')->name('listen.destroy');
         Route::get('listenUser','listenUser')->name('listen.listenUser');
+        Route::post('addViewCount', 'addViewCount')->name('listen.addViewCount');
     });
 
     Route::controller(TherapyController::class)
@@ -71,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store','store')->name('therapy.store');
         Route::post('destroy','destroy')->name('therapy.destroy');
         Route::get('therapyUser','therapyUser')->name('therapy.therapyUser');
+        Route::post('addViewCount', 'addViewCount')->name('therapy.addViewCount');
     });
 
     Route::controller(MediateController::class)
@@ -81,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store','store')->name('mediate.store');
         Route::post('destroy','destroy')->name('mediate.destroy');
         Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
+        Route::post('addViewCount', 'addViewCount')->name('mediate.addViewCount');
     });
     
     Route::controller(NarrativeController::class)
@@ -110,6 +114,7 @@ Route::middleware('auth:sanctum')->group(function(){
     ->group(function(){
         Route::get('/','index')->name('guide');
         Route::get('/category','category')->name('guide.category');
+        Route::post('addViewCount', 'addViewCount')->name('guide.addViewCount');
     });
 
     Route::controller(BeginTripController::class)

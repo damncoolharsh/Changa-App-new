@@ -229,4 +229,19 @@ class ListenController extends BaseController
             return $this->sendError( [], 'No Data found');
         }
     }
+
+    public function addViewCount(Request $request) {
+        try {
+            $data = Listen::find($request->id);
+            if(!$data) {
+                return $this->sendError('not found', [] );
+            }
+            $data->views = is_null($data->views) ? 1 : $data->views + 1;
+            $data->save();
+            return $this->sendResponse( [], 'Success' );
+        }
+        catch (\Exception $ex) {
+            return $this->sendError( $ex->getMessage(), 'something went wrong');
+        }
+    }
 }
