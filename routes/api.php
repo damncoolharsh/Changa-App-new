@@ -3,14 +3,14 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\LearnController;
 use App\Http\Controllers\API\ListenController;
-use App\Http\Controllers\API\NarrativeController;
 use App\Http\Controllers\API\TherapyController;
 use App\Http\Controllers\API\MediateController;
 use App\Http\Controllers\API\ChatController;
-use App\Http\Controllers\API\AuthOtpController;
+use App\Http\Controllers\API\NarrativeController;
 use App\Http\Controllers\API\FavouriteController;
 use App\Http\Controllers\API\GuideController;
 use App\Http\Controllers\API\BeginTripController;
+use App\Http\Controllers\API\PageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
     Route::get('accountDelete', [AuthController::class, 'accountDelete']);
     Route::post('deleteUser', [AuthController::class, 'deleteUser']);
+    Route::get('notification', [AuthController::class, 'notification']);
+    Route::post('readNotification', [AuthController::class, 'readNotification']);
 
     Route::controller(LearnController::class)
     ->prefix('learn')
@@ -50,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('learn','learn')->name('learn');
         Route::post('store','store')->name('learn.store');
         Route::post('destroy','destroy')->name('learn.destroy');
+        Route::get('favourite','favourite')->name('learn.favourite');
         Route::get('learnUser','learnUser')->name('learn.learnUser');
         Route::post('addViewCount', 'addViewCount')->name('learn.addViewCount');
     });
@@ -61,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('listen','listen')->name('listen');
         Route::post('store','store')->name('listen.store');
         Route::post('destroy','destroy')->name('listen.destroy');
+        Route::get('favourite','favourite')->name('listen.favourite');
         Route::get('listenUser','listenUser')->name('listen.listenUser');
         Route::post('addViewCount', 'addViewCount')->name('listen.addViewCount');
     });
@@ -72,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('therapy','therapy')->name('therapy');
         Route::post('store','store')->name('therapy.store');
         Route::post('destroy','destroy')->name('therapy.destroy');
+        Route::get('favourite','favourite')->name('therapy.favourite');
         Route::get('therapyUser','therapyUser')->name('therapy.therapyUser');
         Route::post('addViewCount', 'addViewCount')->name('therapy.addViewCount');
     });
@@ -83,16 +88,9 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('mediate','mediate')->name('mediate');
         Route::post('store','store')->name('mediate.store');
         Route::post('destroy','destroy')->name('mediate.destroy');
+        Route::get('favourite','favourite')->name('mediate.favourite');
         Route::get('mediateUser','mediateUser')->name('mediate.mediateUser');
         Route::post('addViewCount', 'addViewCount')->name('mediate.addViewCount');
-    });
-    
-    Route::controller(NarrativeController::class)
-    ->prefix('narrative')
-    ->group(function(){
-        Route::get('/','index')->name('narrative');
-        Route::post('store','store')->name('narrative.store');
-        Route::post('delete','delete')->name('narrative.delete');
     });
 
     Route::controller(ChatController::class)
@@ -132,8 +130,24 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('/audio-tag','audioTag')->name('audioTag');
         Route::get('/history','history')->name('history');
     });
+
+    Route::controller(NarrativeController::class)
+    ->prefix('narrative')
+    ->group(function(){
+        Route::get('/','index')->name('narrative');
+        Route::post('/store','store')->name('narrative.store');
+        Route::post('/update','store')->name('narrative.update');
+        Route::post('/delete','delete')->name('narrative.delete');
+    });
+
 });
 
+Route::controller(PageController::class)
+    ->prefix('page')
+    ->group(function(){
+        Route::get('/terms','termsConditions')->name('terms');
+        Route::get('/policy','privacyPolicy')->name('policy');
+    });
 
 // Route::controller(AuthOtpController::class)->group(function(){
 //     Route::get('/otp/login', 'login')->name('otp.login');

@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthController extends BaseController
@@ -270,8 +270,8 @@ class AuthController extends BaseController
                 $mailData['email'] = $request->email;
                 $mailData['verify_url'] = route('verifyAccount', $user->id);
 
-                $mailData['otp'] = $verification_code->otp;
-                Mail::to($request->email)->send(new SendOtpMail($mailData));
+                // $mailData['otp'] = $verification_code->otp;
+                // Mail::to($request->email)->send(new SendOtpMail($mailData));
 
                 Mail::to($request->email)->send(new UserRegisterMail($mailData));
                 $user_device_token = UserDeviceToken::updateOrCreate(
@@ -602,7 +602,7 @@ class AuthController extends BaseController
     //social login
     public function socialLogin(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+       $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:191',
             'user_type' => 'required',
             'isGoogle' => 'required',
@@ -628,8 +628,9 @@ class AuthController extends BaseController
             ->with('userNotificationSetting')
             ->where('user_type', $request->user_type)
             ->where('email', $request->email)
-            ->Orwhere('username', $username)
+            // ->Orwhere('username', $username)
             ->first();
+
         if (!is_null($user) && $user->user_type != $request->user_type) {
             return $this->sendError("Please select correct account type");
         }
@@ -655,7 +656,7 @@ class AuthController extends BaseController
                 'facebook_id' => $request->isGoogle == config('socialLoginType.facebook') ? $request->id : null,
                 'twitter_id' => $request->isGoogle == config('socialLoginType.twitter') ? $request->id : null
             ]);
-        }
+    	}
 
         UserNotificationSetting::updateOrCreate(
             ['user_id' => $user->id],

@@ -53,7 +53,7 @@
             <p style="font-size:22px;font-style:oblique;color:#847f7f;font-weight: 300;margin-bottom:0px;text-align:center">Welcome to
                 the Changa App.</p>
                 <p style="font-size:22px;font-style:oblique;color:#847f7f;font-weight: 300;margin-bottom:0px;text-align:center">Click to verify your account and use below login details <br>
-                {{$verify_url}}</p>
+                <a href="{{ $verify_url }}" style="font-weight:600; color:#2794f9">{{$verify_url}}</a></p>
                 {{-- <p style="font-size:22px;font-style:oblique;color:#847f7f;font-weight: 300;margin-bottom:40px;">From now on, please log in to your account using following Detail</p>
             <div style="width:100%;max-width:400px;margin:0 auto 40px;display:inline-block;padding:20px;border:5px solid #ccc;"> --}}
                 <p style="margin-bottom:0px;">

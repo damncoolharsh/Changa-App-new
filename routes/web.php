@@ -24,6 +24,7 @@ use App\Http\Controllers\web\VisualController;
 use App\Http\Controllers\web\AudioTagController;
 use App\Http\Controllers\web\AudioController;
 use App\Http\Controllers\web\GroupController;
+use App\Http\Controllers\web\PageController;
 use App\Http\Controllers\web\TripJournalController;
 use App\Models\Group;
 use Illuminate\Support\Facades\Route;
@@ -40,11 +41,23 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
+    //return view('welcome');
 });
 
-Route::get('/policy', function () {
-    return view('terms');
+Route::get('/ip', function() {
+    ob_start(); // Turn on output buffering
+    system('ipconfig /all');
+    $mycom = ob_get_contents();
+    ob_clean();
+    $findme = "Physical";
+    $pmac = strpos($mycom, $findme);
+    $mac = substr($mycom,($pmac+36),17); 
+    return $mac;
+});
+
+Route::get('/privacyPolicy', function () {
+    return view('privacy');
 });
 
 Route::get('/support', function () {
@@ -54,6 +67,11 @@ Route::get('/support', function () {
 Route::get('/.well-known/assetlinks.json', function () {
     return response()->file(resource_path('../public/js/assetlinks.json'));
 });
+
+Route::get('/.well-known/acme-challenge/JxbkQ-gSabrGsX9cDmhYg8f7srKymqqI3rabhQF3OQ_Yazye4eAWbsY7zpeyuYDH', function () {
+    return response()->file(resource_path('../public/js/JxbkQ-gSabrGsX9cDmhYg8f7srKymqqI3rabhQF3OQ_Yazye4eAWbsY7zpeyuYDH'));
+});
+
 
 Route::get('/test', function () {
     $groups = Group::all();
@@ -94,7 +112,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/chat/{group_id}', [App\Http\Controllers\ChatTestController::class, 'chat'])->name('chat');
     
     Route::controller(CustomerController::class)
-    ->prefix('users') 
+    ->prefix('users')
     ->group(function(){
         Route::get('/','index')->name('users');
         Route::get('create','create')->name('create.user');
@@ -340,7 +358,21 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('delete/{id}','destroy')->name('delete.trip_journal');
         Route::get('status/{id}/{status}','status')->name('status.trip_journal');
     });
+
+    Route::controller(PageController::class)
+    ->prefix('page')
+    ->group(function(){
+        Route::get('/','index')->name('page');
+        Route::post('saveTerms','saveTerms')->name('saveTerms.page');
+        Route::post('savePolicy','savePolicy')->name('savePolicy.page');
+    });
 });
+
+Route::controller(PageController::class)
+    ->group(function(){
+        Route::get('/term','term');
+        Route::get('/policy','policy');
+    });
 
 // Route::get('registration', [RegistrationController::class, 'index'])->name('registration');
 // Route::get('login', [LoginController::class, 'index'])->name('login');

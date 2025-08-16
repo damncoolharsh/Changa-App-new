@@ -399,6 +399,12 @@
                 </li>
             </ul>
         </li>
+
+        <li>
+            <a href="{{ route('page') }}" class=" nav-link {{ Request::segment(1) == 'page' ? 'active' : '' }}">
+                <i class="fa-solid fa-file-contract"></i><span>Term & Policy</span>
+            </a>
+        </li>
     </ul>
 </div>
 
