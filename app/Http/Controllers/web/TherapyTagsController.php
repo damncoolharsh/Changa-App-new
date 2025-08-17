@@ -78,4 +78,25 @@ class TherapyTagsController extends Controller
             'tag' => 'required|unique:therapy_tags,tag,'.$request->id,
         ];
     }
+
+    public function destroy($id)
+    {
+        try {
+            $therapy_tag = TherapyTag::find($id);
+            if ($therapy_tag) {
+                $therapy_tag->delete();
+                $valid = true;
+                $message = "Tag deleted successfully.";
+            } else {
+                $valid = false;
+                $message = "Tag not found.";
+            }
+            $redirect = route('therapy_tags');
+        } catch (\Exception $ex) {
+            $valid = false;
+            $message = $ex->getMessage();
+            $redirect = '';
+        }
+        return ChangaAppHelper::sendAjaxResponse($valid, $message, $redirect);
+    }
 }

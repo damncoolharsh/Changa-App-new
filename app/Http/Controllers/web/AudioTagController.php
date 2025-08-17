@@ -78,4 +78,25 @@ class AudioTagController extends Controller
             'tag' => 'required|unique:audio_tags,tag,'.$request->id,
         ];
     }
+
+    public function destroy($id)
+    {
+        try {
+            $audio_tag = AudioTag::find($id);
+            if ($audio_tag) {
+                $audio_tag->delete();
+                $valid = true;
+                $message = "Tag deleted successfully.";
+            } else {
+                $valid = false;
+                $message = "Tag not found.";
+            }
+            $redirect = route('audio_tags');
+        } catch (\Exception $ex) {
+            $valid = false;
+            $message = $ex->getMessage();
+            $redirect = '';
+        }
+        return ChangaAppHelper::sendAjaxResponse($valid, $message, $redirect);
+    }
 }

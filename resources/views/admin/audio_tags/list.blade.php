@@ -43,6 +43,7 @@
                                         <td>{{$user->tag}}</td>
                                         <td>
                                             <a href="{{route('edit.audio_tags',$user->id)}}" class="btn btn-warning">Edit</a>
+                                            <a href="javascript:void(0)" data-url="{{route('delete.audio_tags',$user->id)}}" class="btn btn-danger openModal">Delete</a>
                                         </td>
                                       </tr>
                                       @endforeach
@@ -71,8 +72,28 @@
             <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
             <!--End Back To Top Button-->
 
-            {{-- @include('modals/delete_users')     --}}
-    
+            <!-- Delete Modal Start -->
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h3 class="modal-title text-dark" id="exampleModalLongTitle">Delete Modal</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+          <h4 class="text-dark">Are you sure you want to delete this?</h4>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-danger" id="delete-tag-link" href="">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Delete Modal End -->
         </div>
     
         
@@ -80,24 +101,35 @@
 
     @section('scripts')
         <script>
+          var deleteButton;
           $(document).on('click', '.openModal', function (e) {
-          e.preventDefault();
-          var url = $(this).data('url');
-          $.ajax({
-              url: url,
-              type: 'GET',
-              dataType: 'html'
-          })
-              .done(function (data) {
-                  $('#exampleModalCenter').modal('show');
-                  $('.modal-body').html(data);
+            e.preventDefault();
+            var url = $(this).data('url');
+            deleteButton = $(this);
+            $('#delete-tag-link').attr('href', url);
+            $('#exampleModalCenter').modal('show');
+        });
 
-              })
-              .fail(function () {
-                  alert('Something went wrong, Please try again...');
-              });
-          
-      });
+        $(document).on('click', '#delete-tag-link', function (e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.valid) {
+                        $('#exampleModalCenter').modal('hide');
+                        deleteButton.closest('tr').remove();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Something went wrong, Please try again...');
+                }
+            });
+        });
 
       $(document).on('click', '.ok', function(e) {
       // $('.delete').on('submit', function (e) {

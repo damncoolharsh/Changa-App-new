@@ -78,4 +78,25 @@ class MediateTagsController extends Controller
             'tag' => 'required|unique:mediate_tags,tag,'.$request->id,
         ];
     }
+
+    public function destroy($id)
+    {
+        try {
+            $mediate_tag = MediateTag::find($id);
+            if ($mediate_tag) {
+                $mediate_tag->delete();
+                $valid = true;
+                $message = "Tag deleted successfully.";
+            } else {
+                $valid = false;
+                $message = "Tag not found.";
+            }
+            $redirect = route('mediate_tags');
+        } catch (\Exception $ex) {
+            $valid = false;
+            $message = $ex->getMessage();
+            $redirect = '';
+        }
+        return ChangaAppHelper::sendAjaxResponse($valid, $message, $redirect);
+    }
 }

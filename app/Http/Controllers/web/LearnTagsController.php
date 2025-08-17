@@ -78,4 +78,25 @@ class LearnTagsController extends Controller
             'tag' => 'required|unique:learn_tags,tag,'.$request->id,
         ];
     }
+
+    public function destroy($id)
+    {
+        try {
+            $learn_tag = LearnTag::find($id);
+            if ($learn_tag) {
+                $learn_tag->delete();
+                $valid = true;
+                $message = "Tag deleted successfully.";
+            } else {
+                $valid = false;
+                $message = "Tag not found.";
+            }
+            $redirect = route('learn_tags');
+        } catch (\Exception $ex) {
+            $valid = false;
+            $message = $ex->getMessage();
+            $redirect = '';
+        }
+        return ChangaAppHelper::sendAjaxResponse($valid, $message, $redirect);
+    }
 }

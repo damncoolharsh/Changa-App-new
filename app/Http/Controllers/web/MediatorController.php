@@ -175,6 +175,26 @@ class MediatorController extends Controller
         return response()->json($result, 200);
     }
 
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $selectedMediators = $request->input('selected_mediators');
+
+            if (empty($selectedMediators)) {
+                throw new Exception('No mediators selected for deletion.', config('HttpCodes.fail'));
+            }
+
+            User::whereIn('id', $selectedMediators)->delete();
+
+            Session::flash('success', 'Selected mediators deleted successfully.');
+            return response()->json(['status' => 1, 'message' => 'Selected mediators deleted successfully.'], 200);
+
+        } catch (Exception $ex) {
+            Session::flash('error', $ex->getMessage());
+            return response()->json(['status' => 0, 'message' => $ex->getMessage()], 200);
+        }
+    }
+
     public function status($id, $status)
     {
         $userstatus = User::find($id);

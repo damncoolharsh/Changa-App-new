@@ -172,6 +172,26 @@ class CustomerController extends Controller
         return response()->json($result, 200);
     }
 
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $selectedUsers = $request->input('selected_users');
+
+            if (empty($selectedUsers)) {
+                throw new Exception('No users selected for deletion.', config('HttpCodes.fail'));
+            }
+
+            User::whereIn('id', $selectedUsers)->delete();
+
+            Session::flash('success', 'Selected users deleted successfully.');
+            return response()->json(['status' => 1, 'message' => 'Selected users deleted successfully.'], 200);
+
+        } catch (Exception $ex) {
+            Session::flash('error', $ex->getMessage());
+            return response()->json(['status' => 0, 'message' => $ex->getMessage()], 200);
+        }
+    }
+
     public function status($id, $status)
     {
         $userstatus = User::find($id);

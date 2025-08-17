@@ -28,45 +28,53 @@
                             <div class="col-lg-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Sr. No.</th>
-                                                        <th scope="col">Customer ID</th>
-                                                        {{-- <th scope="col">Created Date</th> --}}
-                                                        <th scope="col">Name</th>
-                                                        <th scope="col">Email</th>
-                                                        <th scope="col">Phone No.</th>
-                                                        <th scope="col">User Name</th>
-                                                        <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($users as $key => $user)
+                                        <form id="bulk-delete-form" action="{{ route('bulk.delete.mediators') }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <div class="mb-3">
+                                                <button type="submit" class="btn btn-danger" id="bulk-delete-btn" style="display: none;">Delete Selected</button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
                                                         <tr>
-                                                            <th scope="row">{{$key+1}}</th>
-                                                            <td>{{ $user->customer_id }}</td>
-                                                            {{-- <td>{{ $user->created_at }}</td> --}}
-                                                            <td>{{ $user->first_name . ' ' . $user->last_name }}</td>
-                                                            <td>{{ $user->email }}</td>
-                                                            <td>{{ $user->phone }}</td>
-                                                            <td>{{ $user->username }}</td>
-                                                            <td>
-                                                                <a href="{{ route('show.mediators', $user->id) }}"
-                                                                    class="btn btn-success">View</a>
-                                                                <a href="{{ route('edit.mediators', $user->id) }}"
-                                                                    class="btn btn-warning">Edit</a>
-                                                                <a class="delete-data btn btn-danger"
-                                                                    href="javascript:void(0);"
-                                                                    data-url={{ route('delete.user', $user->id) }}
-                                                                    data-title="Are you sure?"
-                                                                    data-body="Mediator will be deleted!"
-                                                                    data-icon="warning"
-                                                                    data-success="Mediator successfully deleted!"
-                                                                    data-cancel="Mediator is safe!"
-                                                                    title="Delete">Delete</i>
-                                                                </a>
+                                                            <th scope="col"><input type="checkbox" id="select-all-mediators"></th>
+                                                            <th scope="col">Sr. No.</th>
+                                                            <th scope="col">Customer ID</th>
+                                                            {{-- <th scope="col">Created Date</th> --}}
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Email</th>
+                                                            <th scope="col">Phone No.</th>
+                                                            <th scope="col">User Name</th>
+                                                            <th scope="col">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($users as $key => $user)
+                                                            <tr>
+                                                                <td><input type="checkbox" class="mediator-checkbox" name="selected_mediators[]" value="{{ $user->id }}"></td>
+                                                                <th scope="row">{{$key+1}}</th>
+                                                                <td>{{ $user->customer_id }}</td>
+                                                                {{-- <td>{{ $user->created_at }}</td> --}}
+                                                                <td>{{ $user->first_name . ' ' . $user->last_name }}</td>
+                                                                <td>{{ $user->email }}</td>
+                                                                <td>{{ $user->phone }}</td>
+                                                                <td>{{ $user->username }}</td>
+                                                                <td>
+                                                                    <a href="{{ route('show.mediators', $user->id) }}"
+                                                                        class="btn btn-success">View</a>
+                                                                    <a href="{{ route('edit.mediators', $user->id) }}"
+                                                                        class="btn btn-warning">Edit</a>
+                                                                    <a class="delete-data btn btn-danger"
+                                                                        href="javascript:void(0);"
+                                                                        data-url={{ route('delete.mediators', $user->id) }}
+                                                                        data-title="Are you sure?"
+                                                                        data-body="Mediator will be deleted!"
+                                                                        data-icon="warning"
+                                                                        data-success="Mediator successfully deleted!"
+                                                                        data-cancel="Mediator is safe!"
+                                                                        title="Delete">Delete</i>
+                                                                    </a>
 
                                                                 <div style="position: relative;" data-table=""
                                                                     data-id="{{ $user->id }}"
@@ -92,6 +100,7 @@
                                             </table>
                                             {{ $users->links('pagination::bootstrap-4') }}
                                         </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -125,7 +134,7 @@
                         </div>
                         <div class="modal-body text-center">
                             <div class="delete-pic my-2">
-                                <?xml version="1.0" ?>
+                                {{-- <?xml version="1.0" ?> --}}
                                 <svg id="Icons" style="width: 120px;" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                     <defs>
@@ -168,16 +177,77 @@
 
     @section('scripts')
         <script>
-            $(document).on('click', '.delete', function(e) {
-                let url = $(this).data('url');
-                console.log(url);
-                $('#commonModal').modal('show');
-                getAjax(url, respons234e);
-            });
+            $(document).ready(function() {
+                $('#select-all-mediators').on('change', function() {
+                    $('.mediator-checkbox').prop('checked', $(this).prop('checked'));
+                    toggleBulkDeleteButton();
+                });
 
-            function respons234e(response) {
-                console.log(response);
-                // $('.modal-body').html('response');
-            }
+                $('.mediator-checkbox').on('change', function() {
+                    toggleBulkDeleteButton();
+                });
+
+                function toggleBulkDeleteButton() {
+                    if ($('.mediator-checkbox:checked').length > 0) {
+                        $('#bulk-delete-btn').show();
+                    } else {
+                        $('#bulk-delete-btn').hide();
+                    }
+                }
+
+                // Initial check on page load
+                toggleBulkDeleteButton();
+
+                $('#bulk-delete-form').on('submit', function(e) {
+                    e.preventDefault();
+                    var form = $(this);
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete selected mediators!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: form.attr('action'),
+                                type: 'POST', // Laravel's @method('DELETE') will handle this
+                                data: form.serialize(),
+                                success: function(response) {
+                                    if (response.status === 1) {
+                                        Swal.fire(
+                                            'Deleted!',
+                                            response.message,
+                                            'success'
+                                        ).then(() => {
+                                            // Remove deleted rows from the table
+                                            $('input.mediator-checkbox:checked').each(function() {
+                                                $(this).closest('tr').remove();
+                                            });
+                                            // Hide the bulk delete button if no checkboxes are selected
+                                            toggleBulkDeleteButton();
+                                        });
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            response.message,
+                                            'error'
+                                        );
+                                    }
+                                },
+                                error: function(xhr) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'An error occurred during deletion.',
+                                        'error'
+                                    );
+                                }
+                            });
+                        }
+                    })
+                });
+            });
         </script>
     @endsection

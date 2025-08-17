@@ -78,4 +78,25 @@ class ListenTagsController extends Controller
             'tag' => 'required|unique:listen_tags,tag,'.$request->id,
         ];
     }
+
+    public function destroy($id)
+    {
+        try {
+            $listen_tag = ListenTag::find($id);
+            if ($listen_tag) {
+                $listen_tag->delete();
+                $valid = true;
+                $message = "Tag deleted successfully.";
+            } else {
+                $valid = false;
+                $message = "Tag not found.";
+            }
+            $redirect = route('listen_tags');
+        } catch (\Exception $ex) {
+            $valid = false;
+            $message = $ex->getMessage();
+            $redirect = '';
+        }
+        return ChangaAppHelper::sendAjaxResponse($valid, $message, $redirect);
+    }
 }

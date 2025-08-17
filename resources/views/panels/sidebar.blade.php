@@ -136,7 +136,7 @@
                 <li>
                     <a type="button"
                         class="nav-link dropdown-btn {{ Request::segment(1) == 'listen_tags' || Request::segment(1) == 'listens' ? 'active1' : '' }}">
-                        <i class="fa-solid fa-music"></i><span>Listen <i class="fa fa-chevron-down fa-color icon-rotates"
+                        <i class="fa-solid fa-music"></i><span>Sound <i class="fa fa-chevron-down fa-color icon-rotates"
                                 aria-hidden="true"></i></span></a>
                     <ul class="nav-link dropdown-container"
                         style="padding:0; {{ Request::segment(1) == 'listen_tags' || Request::segment(1) == 'listens' ? 'display : block' : '' }}">
@@ -158,7 +158,7 @@
                 <li>
                     <a type="button"
                         class="nav-link dropdown-btn {{ Request::segment(1) == 'therapy_tags' || Request::segment(1) == 'therapy' ? 'active1' : '' }}">
-                        <i class="zmdi zmdi-account-circle"></i><span>Therapy <i
+                        <i class="zmdi zmdi-account-circle"></i><span>Breath <i
                                 class="fa fa-chevron-down fa-color icon-rotates" aria-hidden="true"></i></span></a>
                     <ul class="nav-link dropdown-container"
                         style="padding:0; {{ Request::segment(1) == 'therapy_tags' || Request::segment(1) == 'therapy' ? 'display : block' : '' }}">

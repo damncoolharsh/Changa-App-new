@@ -121,6 +121,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('view/{id}','show')->name('show.user');
         Route::get('modal/{id}','modal')->name('modal.user');
         Route::get('delete/{id}','destroy')->name('delete.user');
+        Route::delete('bulk-delete','bulkDelete')->name('bulk.delete.users');
         Route::get('status/{id}/{status}','status')->name('status.user');
         Route::get('/testEmail','testEmail')->name('testEmail');
         
@@ -137,6 +138,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('view/{id}','show')->name('show.mediators');
         Route::get('modal/{id}','modal')->name('modal.mediators');
         Route::get('delete/{id}','destroy')->name('delete.mediators');
+        Route::delete('bulk-delete','bulkDelete')->name('bulk.delete.mediators');
         Route::get('status/{id}/{status}','status')->name('status.mediators');
     });
 
